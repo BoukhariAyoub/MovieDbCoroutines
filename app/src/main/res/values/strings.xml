@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Movie DB</string>
+    <string name="loading_text">Chargement</string>
+    <string name="network_exception_message">Il n\'y a pas de connexion</string>
+    <string name="rating_placeholder"><b>%s</b> /10</string>
+    <string name="unknown_error">Une erreur inconnue est survenue</string>
+
+</resources>
