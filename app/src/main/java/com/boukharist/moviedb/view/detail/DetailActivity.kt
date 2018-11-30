@@ -99,8 +99,8 @@ class DetailActivity : AppCompatActivity() {
                 .apply(RequestOptions().centerCrop())
                 .into(poster_image)
 
-        //set tagline
-        tagline_view.text = item.tagline
+        //set tagLine
+        tagline_view.text = item.tagLine
         //set overview
         overview_view.text = item.overview
         //set rating

@@ -12,6 +12,5 @@ interface ConfigDao {
     fun save(configEntity: ConfigEntity)
 
     @Query("SELECT * FROM config LIMIT 1")
-    fun findConfig(): Maybe<ConfigEntity>
-
+    fun findConfig(): ConfigEntity?
 }

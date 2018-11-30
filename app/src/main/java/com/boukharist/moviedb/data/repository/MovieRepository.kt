@@ -9,25 +9,29 @@ import io.reactivex.Single
 
 interface MovieRepository {
     fun insertMovie(movieEntity: MovieEntity)
-    fun insertConfig(configEntity: ConfigEntity)
     fun getMovieById(id: String): Single<MovieEntity>
     fun getTopMovies(page: Int): Single<List<MovieEntity>>
-    fun getConfig(): Single<ConfigEntity>
+
+    suspend fun insertConfig(configEntity: ConfigEntity)
+    suspend fun getConfig(): ConfigEntity
 }
 
 class MovieRepositoryImpl(private val remoteDataSource: MovieRemoteDataSource,
                           private val configDataSource: ConfigDao,
                           private val localDataSource: MovieDao) : MovieRepository {
 
-    override fun insertConfig(configEntity: ConfigEntity) {
+    override suspend fun insertConfig(configEntity: ConfigEntity) {
         return configDataSource.save(configEntity)
     }
 
-    override fun getConfig(): Single<ConfigEntity> {
-        return configDataSource.findConfig()
-                .switchIfEmpty(remoteDataSource.getConfiguration()
-                        .map { ConfigEntity.from(it.configResponse) }
-                        .doOnSuccess { configDataSource.save(it) })
+    override suspend fun getConfig(): ConfigEntity {
+        val localConfig = configDataSource.findConfig()
+        return localConfig?.let {
+            remoteDataSource.getConfiguration()
+                    .await()
+                    .let { ConfigEntity.from(it.configResponse) }
+                    .also { configDataSource.save(it) }
+        } ?: throw error("SOMETHING BAD HAPPENED")
     }
 
     override fun insertMovie(movieEntity: MovieEntity) {

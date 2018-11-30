@@ -20,5 +20,4 @@ class ApiKeyInterceptor : Interceptor {
         val request = requestBuilder.build()
         return chain.proceed(request)
     }
-
 }

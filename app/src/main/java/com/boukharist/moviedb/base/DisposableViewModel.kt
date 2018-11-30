@@ -9,7 +9,7 @@ abstract class DisposableViewModel : ViewModel() {
 
     private val disposables = CompositeDisposable()
 
-    fun launch(disposable: () -> Disposable) {
+    fun launchDisposable(disposable: () -> Disposable) {
         disposables.add(disposable())
     }
 

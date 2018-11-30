@@ -22,7 +22,7 @@ data class MovieResponse(
         @Expose val posterPath: String?,
         @SerializedName("overview")
         @Expose val overview: String?,
-        @SerializedName("tagline")
+        @SerializedName("tagLine")
         @Expose val tagline: String?,
         @SerializedName("vote_average")
         @Expose val rating: String?)

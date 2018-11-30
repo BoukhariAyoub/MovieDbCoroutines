@@ -3,9 +3,8 @@ package com.boukharist.moviedb.data.datasource.remote
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class ParentConfigResponse(
-        @SerializedName("images")
-        @Expose val configResponse: ConfigResponse)
+data class ParentConfigResponse(@SerializedName("images")
+                                @Expose val configResponse: ConfigResponse)
 
 
 data class ConfigResponse(

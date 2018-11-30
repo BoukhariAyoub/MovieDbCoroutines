@@ -5,6 +5,7 @@ import com.boukharist.moviedb.data.datasource.remote.MovieRemoteDataSource
 import com.boukharist.moviedb.di.DatasourceProperties.SERVER_URL
 import com.boukharist.moviedb.util.ApiKeyInterceptor
 import com.boukharist.moviedb.util.ConnectivityInterceptor
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module.applicationContext
@@ -45,6 +46,7 @@ inline fun <reified T> createWebService(okHttpClient: OkHttpClient, url: String)
             .baseUrl(url)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build()
     return retrofit.create(T::class.java)
 }

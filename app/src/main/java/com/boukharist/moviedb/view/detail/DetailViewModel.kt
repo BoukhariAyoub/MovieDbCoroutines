@@ -1,20 +1,25 @@
 package com.boukharist.moviedb.view.detail
 
-import android.annotation.SuppressLint
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import com.boukharist.moviedb.base.DisposableViewModel
 import com.boukharist.moviedb.data.repository.MovieRepository
 import com.boukharist.moviedb.util.SchedulerProvider
 import com.boukharist.moviedb.view.ErrorState
-import com.boukharist.moviedb.view.LoadingState
 import com.boukharist.moviedb.view.ViewModelState
-import io.reactivex.Single
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 class DetailViewModel(private val movieRepository: MovieRepository,
                       private val schedulerProvider: SchedulerProvider)
-    : DisposableViewModel() {
+    : DisposableViewModel(), CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
     companion object {
         const val TAG = "DetailViewModel"
     }
@@ -23,20 +28,26 @@ class DetailViewModel(private val movieRepository: MovieRepository,
     val states: LiveData<ViewModelState>
         get() = _states
 
-    @SuppressLint("RxLeakedSubscription")
     fun getMovie(id: String) {
         launch {
-            Single.zip(movieRepository.getConfig(), movieRepository.getMovieById(id), MovieDetailMapper())
-                    .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
-                    .doOnSubscribe { _states.postValue(LoadingState) }
-                    .subscribe({ movie ->
-                        _states.postValue(LoadedState(movie))
-                    }, { throwable ->
-                        Log.e(TAG, throwable.message, throwable)
-                        _states.postValue(ErrorState(throwable))
-                    })
+            val config = movieRepository.getConfig()
+            _states.postValue(ErrorState(Throwable(config.toString())))
         }
+
+        /* launchDisposable {
+
+
+             Single.zip(movieRepository.getConfig(), movieRepository.getMovieById(id), { config, movie -> })
+                     .subscribeOn(schedulerProvider.io())
+                     .observeOn(schedulerProvider.ui())
+                     .doOnSubscribe { _states.postValue(LoadingState) }
+                     .subscribe({ movie ->
+                         _states.postValue(LoadedState(movie))
+                     }, { throwable ->
+                         Log.e(TAG, throwable.message, throwable)
+                         _states.postValue(ErrorState(throwable))
+                     })
+         } */
     }
 
 

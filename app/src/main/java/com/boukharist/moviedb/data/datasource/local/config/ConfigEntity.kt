@@ -16,22 +16,13 @@ data class ConfigEntity(
     fun getPosterPrefixUrl() = baseUrl + posterPreferredSize
 
     companion object {
-        fun from(response: ConfigResponse): ConfigEntity {
-            val preferredBackdrop = response.backdrop_sizes?.let {
-                if (it.size > 1) {
-                    it[it.size - 2]
-                } else {
-                    "original"
-                }
-            } ?: "original"
+        private const val DEFAULT_SIZE = "original"
 
-            val preferredPosterSize = response.poster_sizes?.let {
-                if (it.size > 1) {
-                    it[it.size - 2]
-                } else {
-                    "original"
-                }
-            } ?: "original"
+        fun from(response: ConfigResponse): ConfigEntity {
+            val preferredBackdrop = response.backdrop_sizes?.dropLast(1)?.lastOrNull()
+                    ?: DEFAULT_SIZE
+            val preferredPosterSize = response.poster_sizes?.dropLast(1)?.lastOrNull()
+                    ?: DEFAULT_SIZE
 
 
 

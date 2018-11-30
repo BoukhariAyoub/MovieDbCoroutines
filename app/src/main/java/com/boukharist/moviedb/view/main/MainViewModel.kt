@@ -14,10 +14,19 @@ import com.boukharist.moviedb.view.ViewModelState
 import com.boukharist.moviedb.view.main.list.MovieListItem
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 class MainViewModel(private val movieRepository: MovieRepository,
                     private val schedulerProvider: SchedulerProvider)
-    : DisposableViewModel() {
+    : DisposableViewModel() , CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
     companion object {
         const val TAG = "MainViewModel"
     }
@@ -28,7 +37,14 @@ class MainViewModel(private val movieRepository: MovieRepository,
 
 
     fun getAllMovies(page: Int) {
-        launch {
+
+        launch(Dispatchers.IO) {
+            val config = movieRepository.getConfig()
+            _states.postValue(ErrorState(Throwable(config.toString())))
+        }
+
+
+     /*   launchDisposable {
             Single.zip(movieRepository.getConfig(), movieRepository.getTopMovies(page), MovieListMapper())
                     .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
@@ -39,7 +55,7 @@ class MainViewModel(private val movieRepository: MovieRepository,
                         _states.postValue(ErrorState(throwable))
                         Log.e(TAG, throwable.message, throwable)
                     })
-        }
+        } */
     }
 
     class MovieListMapper : BiFunction<ConfigEntity, List<MovieEntity>, MutableList<MovieListItem>> {
