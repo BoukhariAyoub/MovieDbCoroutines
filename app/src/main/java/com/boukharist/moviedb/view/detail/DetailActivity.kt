@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.activity_detail.*
 import kotlinx.android.synthetic.main.detail_view_layout.*
 import kotlinx.android.synthetic.main.state_view_layout.*
 import org.koin.android.architecture.ext.viewModel
+import java.io.IOException
 
 
 class DetailActivity : AppCompatActivity() {
@@ -127,7 +128,7 @@ class DetailActivity : AppCompatActivity() {
         @DrawableRes val image: Int
 
         when (error) {
-            is NoNetworkException -> {
+            is IOException -> {
                 image = R.drawable.ic_network_off
                 message = R.string.network_exception_message
             }

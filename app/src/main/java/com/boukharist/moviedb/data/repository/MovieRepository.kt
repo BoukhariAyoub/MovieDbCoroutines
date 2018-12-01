@@ -5,12 +5,11 @@ import com.boukharist.moviedb.data.datasource.local.config.ConfigEntity
 import com.boukharist.moviedb.data.datasource.local.movie.MovieDao
 import com.boukharist.moviedb.data.datasource.local.movie.MovieEntity
 import com.boukharist.moviedb.data.datasource.remote.MovieRemoteDataSource
-import io.reactivex.Single
 
 interface MovieRepository {
-    fun insertMovie(movieEntity: MovieEntity)
-    fun getMovieById(id: String): Single<MovieEntity>
-    fun getTopMovies(page: Int): Single<List<MovieEntity>>
+    suspend fun insertMovie(movieEntity: MovieEntity)
+    suspend fun getMovieById(id: String): MovieEntity
+    suspend fun getTopMovies(page: Int): List<MovieEntity>
 
     suspend fun insertConfig(configEntity: ConfigEntity)
     suspend fun getConfig(): ConfigEntity
@@ -25,34 +24,26 @@ class MovieRepositoryImpl(private val remoteDataSource: MovieRemoteDataSource,
     }
 
     override suspend fun getConfig(): ConfigEntity {
-        val localConfig = configDataSource.findConfig()
-        return localConfig?.let {
-            remoteDataSource.getConfiguration()
-                    .await()
-                    .let { ConfigEntity.from(it.configResponse) }
-                    .also { configDataSource.save(it) }
-        } ?: throw error("SOMETHING BAD HAPPENED")
+        return configDataSource.findConfig() ?: remoteDataSource.getConfiguration().await()
+                .let { ConfigEntity.from(it.configResponse) }
+                .also { configDataSource.save(it) }
     }
 
-    override fun insertMovie(movieEntity: MovieEntity) {
+    override suspend fun insertMovie(movieEntity: MovieEntity) {
         return localDataSource.save(movieEntity)
     }
 
-    override fun getMovieById(id: String): Single<MovieEntity> {
-        return localDataSource.findById(id)
-                .switchIfEmpty(remoteDataSource.getMovieById(id)
-                        .map { MovieEntity.from(it) }
-                        .doOnSuccess { localDataSource.save(it) })
+    override suspend fun getMovieById(id: String): MovieEntity {
+        return localDataSource.findById(id) ?: remoteDataSource.getMovieById(id).await()
+                .let { MovieEntity.from(it) }
+                .also { localDataSource.save(it) }
     }
 
-    override fun getTopMovies(page: Int): Single<List<MovieEntity>> {
-        return remoteDataSource.getLatestMovies(page)
-                .filter { it.results != null }
-                .map { it.results }
-                .flattenAsObservable { it }
-                .map { MovieEntity.from(it) }
-                .toList()
+    override suspend fun getTopMovies(page: Int): List<MovieEntity> {
+        return remoteDataSource.getLatestMovies(page).await()
+                .takeIf { movieListResponse -> movieListResponse.results != null }
+                ?.let { it.results }
+                ?.map { MovieEntity.from(it) }
+                ?: emptyList()
     }
-
-
 }
