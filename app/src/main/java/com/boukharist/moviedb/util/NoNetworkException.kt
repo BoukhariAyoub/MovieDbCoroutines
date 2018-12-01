@@ -1,3 +1,5 @@
 package com.boukharist.moviedb.util
 
-class NoNetworkException : Throwable()
+import java.io.IOException
+
+class NoNetworkException : IOException("No Network")

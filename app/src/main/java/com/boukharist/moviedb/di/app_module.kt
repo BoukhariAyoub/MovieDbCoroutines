@@ -4,8 +4,6 @@ import android.arch.persistence.room.Room
 import com.boukharist.moviedb.data.datasource.local.MoviesDataBase
 import com.boukharist.moviedb.data.repository.MovieRepository
 import com.boukharist.moviedb.data.repository.MovieRepositoryImpl
-import com.boukharist.moviedb.util.AppScheduleProvider
-import com.boukharist.moviedb.util.SchedulerProvider
 import com.boukharist.moviedb.view.detail.DetailViewModel
 import com.boukharist.moviedb.view.main.MainViewModel
 import org.koin.android.architecture.ext.viewModel
@@ -14,14 +12,11 @@ import org.koin.dsl.module.applicationContext
 
 val appModule = applicationContext {
 
-    viewModel { MainViewModel(get(), get()) }
-    viewModel { DetailViewModel(get(), get()) }
+    viewModel { MainViewModel(get()) }
+    viewModel { DetailViewModel(get()) }
 
     //Repository
-    bean { MovieRepositoryImpl(get(), get(),get()) as MovieRepository }
-
-    // Schedulers
-    bean { AppScheduleProvider() as SchedulerProvider }
+    bean { MovieRepositoryImpl(get(), get(), get()) as MovieRepository }
 
     // Database
     bean {

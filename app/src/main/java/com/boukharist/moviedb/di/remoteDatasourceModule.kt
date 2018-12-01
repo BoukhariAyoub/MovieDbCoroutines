@@ -5,12 +5,11 @@ import com.boukharist.moviedb.data.datasource.remote.MovieRemoteDataSource
 import com.boukharist.moviedb.di.DatasourceProperties.SERVER_URL
 import com.boukharist.moviedb.util.ApiKeyInterceptor
 import com.boukharist.moviedb.util.ConnectivityInterceptor
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module.applicationContext
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -47,6 +46,6 @@ inline fun <reified T> createWebService(okHttpClient: OkHttpClient, url: String)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build()
+            .build()
     return retrofit.create(T::class.java)
 }

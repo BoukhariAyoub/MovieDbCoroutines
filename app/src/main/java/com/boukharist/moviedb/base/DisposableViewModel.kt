@@ -1,21 +1,28 @@
 package com.boukharist.moviedb.base
 
 import android.arch.lifecycle.ViewModel
-import android.support.annotation.CallSuper
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-abstract class DisposableViewModel : ViewModel() {
+abstract class DisposableViewModel : ViewModel(), CoroutineScope {
 
-    private val disposables = CompositeDisposable()
+    private var parentJob = Job()
 
-    fun launchDisposable(disposable: () -> Disposable) {
-        disposables.add(disposable())
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO + parentJob
+
+
+    protected fun execute(block: suspend () -> Unit) {
+        val errorHandler = CoroutineExceptionHandler { _, throwable -> throw Throwable(throwable) }
+
+        launch(coroutineContext + errorHandler) {
+            block()
+        }
     }
 
-    @CallSuper
     override fun onCleared() {
         super.onCleared()
-        disposables.clear()
+        parentJob.cancel()
     }
+
 }

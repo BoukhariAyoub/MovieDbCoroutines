@@ -18,6 +18,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.state_view_layout.*
 import org.koin.android.architecture.ext.viewModel
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,9 +74,9 @@ class MainActivity : AppCompatActivity() {
                 adapter.setNewData(movies)
                 adapter.setEnableLoadMore(true)
             }
-        //loadMode data loaded
+            //loadMode data loaded
             movies.isNotEmpty() -> adapter.addData(movies)
-        //there is no more data left
+            //there is no more data left
             else -> adapter.loadMoreEnd()
         }
         //increase page count
@@ -89,23 +90,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDataError(error: Throwable) {
-        @StringRes val message: Int
+        @StringRes val message: String
         @DrawableRes val image: Int
 
         when (error) {
             is NoNetworkException -> {
                 image = R.drawable.ic_network_off
-                message = R.string.network_exception_message
+                message = getString(R.string.network_exception_message)
             }
             else -> {
                 image = R.drawable.ic_error
-                message = R.string.unknown_error
+                message = "${getString(R.string.unknown_error)}  ${error.message}"
             }
         }
 
         swipe_refresh.visibility = View.GONE
         state_layout.visibility = View.VISIBLE
-        state_content_text_view.setText(message)
+        state_content_text_view.text = message
         state_image_view.setImageResource(image)
     }
 
