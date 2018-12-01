@@ -24,10 +24,7 @@ class MovieRepositoryImpl(private val remoteDataSource: MovieRemoteDataSource,
     }
 
     override suspend fun getConfig(): ConfigEntity {
-        val localConfig = configDataSource.findConfig()
-
-        return localConfig ?: remoteDataSource.getConfiguration()
-                .await()
+        return configDataSource.findConfig() ?: remoteDataSource.getConfiguration().await()
                 .let { ConfigEntity.from(it.configResponse) }
                 .also { configDataSource.save(it) }
     }

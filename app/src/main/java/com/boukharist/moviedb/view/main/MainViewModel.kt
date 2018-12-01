@@ -27,8 +27,8 @@ class MainViewModel(private val movieRepository: MovieRepository) : DisposableVi
         launch {
             supervisorScope {
                 try {
+                    val topMovies = async(start = CoroutineStart.LAZY) { movieRepository.getTopMovies(page) }
                     val config = async { movieRepository.getConfig() }
-                    val topMovies = async { movieRepository.getTopMovies(page) }
                     val movies = MovieListMapper(config.await(), topMovies.await())
                     withContext(Dispatchers.Main) { _states.postValue(LoadedState(movies)) }
                 } catch (throwable: Throwable) {
