@@ -4,6 +4,8 @@ import android.arch.persistence.room.Room
 import com.boukharist.moviedb.data.datasource.local.MoviesDataBase
 import com.boukharist.moviedb.data.repository.MovieRepository
 import com.boukharist.moviedb.data.repository.MovieRepositoryImpl
+import com.boukharist.moviedb.util.AppDispatcherProvider
+import com.boukharist.moviedb.util.DispatcherProvider
 import com.boukharist.moviedb.view.detail.DetailViewModel
 import com.boukharist.moviedb.view.main.MainViewModel
 import org.koin.android.architecture.ext.viewModel
@@ -12,7 +14,7 @@ import org.koin.dsl.module.applicationContext
 
 val appModule = applicationContext {
 
-    viewModel { MainViewModel(get()) }
+    viewModel { MainViewModel(get(), get()) }
     viewModel { DetailViewModel(get()) }
 
     //Repository
@@ -24,6 +26,8 @@ val appModule = applicationContext {
                 .fallbackToDestructiveMigration()
                 .build()
     }
+
+    bean { AppDispatcherProvider() as DispatcherProvider }
 
     bean { get<MoviesDataBase>().movieDao() }
     bean { get<MoviesDataBase>().configDao() }

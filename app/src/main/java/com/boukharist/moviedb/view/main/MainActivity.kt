@@ -17,6 +17,7 @@ import com.boukharist.moviedb.view.main.list.MoviesAdapter
 import com.chad.library.adapter.base.BaseQuickAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.state_view_layout.*
+import kotlinx.coroutines.runBlocking
 import org.koin.android.architecture.ext.viewModel
 import java.io.IOException
 
