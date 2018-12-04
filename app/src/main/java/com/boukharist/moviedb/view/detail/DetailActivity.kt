@@ -16,10 +16,10 @@ import android.view.View.VISIBLE
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import com.boukharist.moviedb.R
-import com.boukharist.moviedb.util.NoNetworkException
 import com.boukharist.moviedb.util.extra
 import com.boukharist.moviedb.util.getTag
 import com.boukharist.moviedb.view.ErrorState
+import com.boukharist.moviedb.view.LoadedState
 import com.boukharist.moviedb.view.LoadingState
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -53,9 +53,9 @@ class DetailActivity : AppCompatActivity() {
         //observe viewModel
         viewModel.states.observe(this, Observer { state ->
             when (state) {
-                is ErrorState -> showError(state.error)
                 LoadingState -> showLoading()
-                is DetailViewModel.LoadedState -> showDetail(state.value)
+                is ErrorState -> showError(state.error)
+                is LoadedState<*> -> showDetail(state.data as MovieDetailItem)
             }
         })
 
@@ -65,62 +65,71 @@ class DetailActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-        supportActionBar?.setHomeButtonEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        collapsing_toolbar_layout.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.white))
-        collapsing_toolbar_layout.setExpandedTitleColor(ContextCompat.getColor(this, R.color.white))
-        app_bar_layout.setExpanded(false)
+
+        supportActionBar?.apply {
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
+
+        collapsingToolbarLayout.also {
+            it.setCollapsedTitleTextColor(ContextCompat.getColor(this, R.color.white))
+            it.setExpandedTitleColor(ContextCompat.getColor(this, R.color.white))
+        }
+
+
+        appBarLayout.setExpanded(false)
     }
 
     private fun showDetail(item: MovieDetailItem) {
         Log.i(getTag(), "$item")
 
-        state_layout.visibility = GONE
-        state_content_text_view.clearAnimation()
+        stateLayout.visibility = GONE
+        stateContentTextView.clearAnimation()
 
-        detail_view_layout.visibility = VISIBLE
-        app_bar_layout.setExpanded(true, true)
+        detailViewLayout.visibility = VISIBLE
+        appBarLayout.setExpanded(true, true)
 
         //set toolbar title
-        collapsing_toolbar_layout.title = item.title
+        collapsingToolbarLayout.title = item.title
         toolbar.title = item.title
 
         //set title
-        title_view.text = item.title
+        titleView.text = item.title
 
         //set backdrop image
         Glide.with(this)
                 .load(item.backdropPath)
                 .apply(RequestOptions().centerCrop())
-                .into(backdrop_image)
+                .into(backdropImage)
 
         //set poster image
         Glide.with(this)
                 .load(item.posterPath)
                 .apply(RequestOptions().centerCrop())
-                .into(poster_image)
+                .into(posterImageView)
 
         //set tagLine
-        tagline_view.text = item.tagLine
+        taglineView.text = item.tagLine
         //set overview
-        overview_view.text = item.overview
+        overviewView.text = item.overview
         //set rating
-        rating_view.text = getString(R.string.rating_placeholder, item.rating)
+        ratingView.text = getString(R.string.rating_placeholder, item.rating)
     }
 
     private fun showLoading() {
         //show state layout
-        state_layout.visibility = View.VISIBLE
-        state_content_text_view.setText(R.string.loading_text)
-        state_image_view.setImageResource(R.drawable.ic_loading)
+        stateLayout.visibility = View.VISIBLE
+        stateContentTextView.setText(R.string.loading_text)
+        stateImageView.setImageResource(R.drawable.ic_loading)
 
         //blink animation
-        val anim = AlphaAnimation(0.0f, 1.0f)
-        anim.duration = 500
-        anim.startOffset = 100
-        anim.repeatMode = Animation.REVERSE
-        anim.repeatCount = Animation.INFINITE
-        state_content_text_view.startAnimation(anim)
+        with(AlphaAnimation(0.0f, 1.0f)) {
+            duration = 500
+            startOffset = 100
+            repeatMode = Animation.REVERSE
+            repeatCount = Animation.INFINITE
+            stateContentTextView.startAnimation(this)
+        }
     }
 
     private fun showError(error: Throwable) {
@@ -138,10 +147,10 @@ class DetailActivity : AppCompatActivity() {
             }
         }
 
-        state_layout.visibility = View.VISIBLE
-        state_content_text_view.setText(message)
-        state_image_view.setImageResource(image)
-        state_content_text_view.clearAnimation()
+        stateLayout.visibility = View.VISIBLE
+        stateContentTextView.setText(message)
+        stateImageView.setImageResource(image)
+        stateContentTextView.clearAnimation()
     }
 
     companion object {

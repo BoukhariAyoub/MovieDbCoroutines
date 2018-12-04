@@ -10,6 +10,7 @@ import com.boukharist.moviedb.data.repository.MovieRepository
 import com.boukharist.moviedb.util.DispatcherProvider
 import com.boukharist.moviedb.util.getTag
 import com.boukharist.moviedb.view.ErrorState
+import com.boukharist.moviedb.view.LoadedState
 import com.boukharist.moviedb.view.LoadingState
 import com.boukharist.moviedb.view.ViewModelState
 import com.boukharist.moviedb.view.main.list.MovieListItem
@@ -27,7 +28,8 @@ class MainViewModel(private val movieRepository: MovieRepository,
         launch {
             supervisorScope {
                 try {
-                    val topMovies = async(start = CoroutineStart.LAZY) { movieRepository.getTopMovies(page) }
+                    //start = CoroutineStart.LAZY
+                    val topMovies = async { movieRepository.getTopMovies(page) }
                     val config = async { movieRepository.getConfig() }
                     val movies = MovieListMapper(config.await(), topMovies.await())
                     withContext(dispatcherProvider.ui()) {
@@ -43,11 +45,7 @@ class MainViewModel(private val movieRepository: MovieRepository,
 
     object MovieListMapper : (ConfigEntity, List<MovieEntity>) -> List<MovieListItem> {
         override fun invoke(config: ConfigEntity, items: List<MovieEntity>): List<MovieListItem> {
-            return items
-                    .map { movie -> MovieListItem.from(config.getPosterPrefixUrl(), movie) }
-                    .toList()
+            return items.map { movie -> MovieListItem.from(config.getPosterPrefixUrl(), movie) }
         }
     }
-
-    data class LoadedState(val value: List<MovieListItem>) : ViewModelState()
 }

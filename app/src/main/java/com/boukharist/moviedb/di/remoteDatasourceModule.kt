@@ -1,10 +1,8 @@
 package com.boukharist.moviedb.di
 
-import android.content.Context
 import com.boukharist.moviedb.data.datasource.remote.MovieRemoteDataSource
 import com.boukharist.moviedb.di.DatasourceProperties.SERVER_URL
 import com.boukharist.moviedb.util.ApiKeyInterceptor
-import com.boukharist.moviedb.util.ConnectivityInterceptor
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -17,7 +15,7 @@ import java.util.concurrent.TimeUnit
  * Remote Web Service datasource
  */
 val remoteDatasourceModule = applicationContext {
-    bean { createOkHttpClient(get()) }
+    bean { createOkHttpClient() }
     bean { createWebService<MovieRemoteDataSource>(get(), getProperty(SERVER_URL)) }
 }
 
@@ -26,16 +24,14 @@ object DatasourceProperties {
     const val SERVER_URL = "SERVER_URL"
 }
 
-fun createOkHttpClient(context: Context): OkHttpClient {
+fun createOkHttpClient(): OkHttpClient {
     val httpLoggingInterceptor = HttpLoggingInterceptor()
-    val noConnectivityInterceptor = ConnectivityInterceptor(context)
     val apiKeyInterceptor = ApiKeyInterceptor()
     httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
     return OkHttpClient.Builder()
             .connectTimeout(60L, TimeUnit.SECONDS)
             .readTimeout(60L, TimeUnit.SECONDS)
             .addInterceptor(httpLoggingInterceptor)
-            .addInterceptor(noConnectivityInterceptor)
             .addInterceptor(apiKeyInterceptor)
             .build()
 }

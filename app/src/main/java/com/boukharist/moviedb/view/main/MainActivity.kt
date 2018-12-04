@@ -8,8 +8,8 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.view.View
 import com.boukharist.moviedb.R
-import com.boukharist.moviedb.util.NoNetworkException
 import com.boukharist.moviedb.view.ErrorState
+import com.boukharist.moviedb.view.LoadedState
 import com.boukharist.moviedb.view.LoadingState
 import com.boukharist.moviedb.view.detail.DetailActivity
 import com.boukharist.moviedb.view.main.list.MovieListItem
@@ -17,7 +17,6 @@ import com.boukharist.moviedb.view.main.list.MoviesAdapter
 import com.chad.library.adapter.base.BaseQuickAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.state_view_layout.*
-import kotlinx.coroutines.runBlocking
 import org.koin.android.architecture.ext.viewModel
 import java.io.IOException
 
@@ -56,20 +55,21 @@ class MainActivity : AppCompatActivity() {
      ** Private Methods
      ************************************************************************************************
      */
+    @Suppress("UNCHECKED_CAST")
     private fun observeData() {
         viewModel.states.observe(this, Observer { state ->
             when (state) {
                 is ErrorState -> onDataError(state.error)
                 LoadingState -> onDataLoading()
-                is MainViewModel.LoadedState -> onDataLoaded(state.value)
+                is LoadedState<*> -> onDataLoaded(state.data as List<MovieListItem>)
             }
         })
     }
 
     private fun onDataLoaded(movies: List<MovieListItem>) {
         //stop loading animation
-        swipe_refresh.visibility = View.VISIBLE
-        swipe_refresh.isRefreshing = false
+        swipeRefresh.visibility = View.VISIBLE
+        swipeRefresh.isRefreshing = false
         when {
             nextPage == 1 -> {  //first time or refresh
                 adapter.setNewData(movies)
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDataLoading() {
-        swipe_refresh.isRefreshing = true
+        swipeRefresh.isRefreshing = true
     }
 
     private fun onDataError(error: Throwable) {
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         @DrawableRes val image: Int
 
         when (error) {
-            is NoNetworkException -> {
+            is IOException -> {
                 image = R.drawable.ic_network_off
                 message = getString(R.string.network_exception_message)
             }
@@ -105,10 +105,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        swipe_refresh.visibility = View.GONE
-        state_layout.visibility = View.VISIBLE
-        state_content_text_view.text = message
-        state_image_view.setImageResource(image)
+        swipeRefresh.visibility = View.GONE
+        stateLayout.visibility = View.VISIBLE
+        stateContentTextView.text = message
+        stateImageView.setImageResource(image)
     }
 
     private fun getMovies() {
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecycler() {
-        swipe_refresh.setOnRefreshListener { refresh() }
+        swipeRefresh.setOnRefreshListener { refresh() }
         recycler.layoutManager = GridLayoutManager(this, 2)
         setupAdapter()
         recycler.adapter = adapter

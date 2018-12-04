@@ -7,6 +7,7 @@ import com.boukharist.moviedb.base.DisposableViewModel
 import com.boukharist.moviedb.data.repository.MovieRepository
 import com.boukharist.moviedb.util.getTag
 import com.boukharist.moviedb.view.ErrorState
+import com.boukharist.moviedb.view.LoadedState
 import com.boukharist.moviedb.view.ViewModelState
 import com.boukharist.moviedb.view.main.MainViewModel
 import kotlinx.coroutines.*
@@ -19,23 +20,17 @@ class DetailViewModel(private val movieRepository: MovieRepository)
 
     fun getMovie(id: String) {
         launch {
-            try {
-                val deferredConfig = async { movieRepository.getConfig() }
-                val deferredMovie = async { movieRepository.getMovieById(id) }
-                val movie = MovieDetailItem.from(deferredMovie.await(), deferredConfig.await())
-                withContext(Dispatchers.Main) { _states.postValue(LoadedState(movie)) }
-            } catch (throwable: Throwable) {
-                withContext(Dispatchers.Main) { _states.postValue(ErrorState(throwable)) }
-                Log.e(getTag(), throwable.message, throwable)
+            supervisorScope {
+                try {
+                    val deferredConfig = async { movieRepository.getConfig() }
+                    val deferredMovie = async { movieRepository.getMovieById(id) }
+                    val movie = MovieDetailMapper(deferredConfig.await(), deferredMovie.await())
+                    withContext(Dispatchers.Main) { _states.postValue(LoadedState(movie)) }
+                } catch (throwable: Throwable) {
+                    withContext(Dispatchers.Main) { _states.postValue(ErrorState(throwable)) }
+                    Log.e(getTag(), throwable.message, throwable)
+                }
             }
         }
-
-        launch {
-            val config = movieRepository.getConfig()
-            _states.postValue(ErrorState(Throwable(config.toString())))
-        }
     }
-
-
-    data class LoadedState(val value: MovieDetailItem) : ViewModelState()
 }

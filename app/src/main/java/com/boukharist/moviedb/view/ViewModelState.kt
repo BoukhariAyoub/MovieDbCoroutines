@@ -12,3 +12,5 @@ object LoadingState : ViewModelState()
 
 
 data class ErrorState(val error: Throwable) : ViewModelState()
+
+data class LoadedState<T>(val data: T) : ViewModelState()

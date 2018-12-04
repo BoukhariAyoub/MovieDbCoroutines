@@ -11,14 +11,15 @@ data class MovieDetailItem(val id: String,
                            val tagLine: String?,
                            val rating: String?) {
     companion object {
-        fun from(movieEntity: MovieEntity, configEntity: ConfigEntity) = MovieDetailItem(
-                movieEntity.id,
-                movieEntity.title,
-                configEntity.getBackDropPrefixUrl() + movieEntity.backdropPath,
-                configEntity.getPosterPrefixUrl() + movieEntity.posterPath,
-                movieEntity.overview,
-                movieEntity.tagline,
-                movieEntity.rating
-        )
+        fun from(movieEntity: MovieEntity, configEntity: ConfigEntity) = with(movieEntity) {
+            MovieDetailItem(
+                    id,
+                    title,
+                    configEntity.getBackDropPrefixUrl() + backdropPath,
+                    configEntity.getPosterPrefixUrl() + posterPath,
+                    overview,
+                    tagline,
+                    rating)
+        }
     }
 }

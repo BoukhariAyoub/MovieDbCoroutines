@@ -11,7 +11,7 @@
     card_view:cardUseCompatPadding="true">
 
     <ImageView
-        android:id="@+id/poster_image"
+        android:id="@+id/posterImageView"
         android:layout_width="match_parent"
         android:layout_height="160dp"
         android:layout_centerInParent="true"

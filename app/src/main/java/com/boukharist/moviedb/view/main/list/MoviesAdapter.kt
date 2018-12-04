@@ -15,7 +15,7 @@ class MoviesAdapter : BaseQuickAdapter<MovieListItem, BaseViewHolder>(R.layout.l
 
             Glide.with(mContext)
                     .load(it.pictureUrl)
-                    .into(helper?.getView(R.id.poster_image) as ImageView)
+                    .into(helper?.getView(R.id.posterImageView) as ImageView)
         }
     }
 
