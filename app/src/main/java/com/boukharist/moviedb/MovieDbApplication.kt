@@ -9,8 +9,5 @@ class MovieDbApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
-        // start Koin context
-        startKoin(this, movieApp, extraProperties = mapOf(SERVER_URL to BuildConfig.SERVER_URL))
     }
 }
