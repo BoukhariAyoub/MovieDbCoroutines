@@ -19,7 +19,7 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
-        buildConfigField "String", "API_BASE_URL","\"b3da98029d776f76e59f0011692f3335\""
+        buildConfigField "String", "API_BASE_URL", "\"b3da98029d776f76e59f0011692f3335\""
         buildConfigField "String", "SERVER_URL", "\"https://api.themoviedb.org/3/\""
 
     }
@@ -29,6 +29,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 androidExtensions {
@@ -36,13 +39,18 @@ androidExtensions {
 }
 
 dependencies {
-    def lifecycle_version = "1.1.1"
-    def okhttp_version = '3.8.1'
-    def retrofit_version = '2.2.0'
-    def koin_version = '0.9.3'
-    def androidArchitectureVersion = "1.1.0"
-    def roomVersion = "1.1.1"
-    def supportVersion = "28.0.0"
+    ext {
+        lifecycle_version = "1.1.1"
+        okhttp_version = '3.8.1'
+        retrofit_version = '2.2.0'
+        koin_version = '0.9.3'
+        androidArchitectureVersion = "1.1.0"
+        roomVersion = "1.1.1"
+        supportVersion = "28.0.0"
+        junit_version = "4.12"
+        mockito_version = "2.8.47"
+        mockk_version = "1.8.13.kotlin13"
+    }
 
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -51,6 +59,7 @@ dependencies {
     implementation "com.android.support:design:$supportVersion"
     implementation "com.android.support:cardview-v7:$supportVersion"
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
 
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     annotationProcessor "android.arch.lifecycle:compiler:$lifecycle_version"
@@ -89,7 +98,7 @@ dependencies {
     //Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1'
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    // Android Test
+    testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation "junit:junit:$junit_version"
 }
